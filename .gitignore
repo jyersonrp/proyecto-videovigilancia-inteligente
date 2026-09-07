@@ -1,0 +1,109 @@
+# ==============================================================================
+# Smart NVR - Git Ignore Configuration
+# ==============================================================================
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Environment Variables & Secrets (Keep .env.example)
+.env
+.env.local
+.env.*.local
+*.secret
+*.pem
+*.key
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+htmlcov/
+tests_adversarial_tmp_purge/
+
+# Local SQLite Databases & WAL files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+storage/*.db*
+storage/nvr.db*
+
+# Storage Recordings, Clips & Snapshots (Keep folder structure via .gitkeep)
+storage/clips/*
+!storage/clips/.gitkeep
+storage/snapshots/*
+!storage/snapshots/.gitkeep
+storage/thumbnails/*
+!storage/thumbnails/.gitkeep
+storage/recordings/*
+!storage/recordings/.gitkeep
+
+# Models & Large Binaries
+*.pt
+*.bin
+*.weights
+*.onnx.extra
+
+# IDEs & Editor configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# Agent & AI tool cache
+.agents/
+.gemini/
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs & Temporary Files
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart NVR — Videovigilancia Inteligente</title>
+  <!-- Tailwind CSS via CDN with custom config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/static/css/custom.css" />
+  <!-- Heroicons or Phosphor Icons via simple SVG -->
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-tight text-white">Smart NVR Dashboard</span>
+          <span class="ml-2 text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-medium border border-blue-500/30">AI Edition</span>
+        </div>
+      </div>
+
+      <!-- Center Nav Tabs -->
+      <nav class="hidden md:flex space-x-1" id="nav-tabs">
+        <button data-tab="live" class="tab-btn active px-4 py-2 rounded-md text-sm font-medium transition-colors bg-blue-600 text-white shadow">
+          En Vivo
+        </button>
+        <button data-tab="events" class="tab-btn px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+          Historial de Eventos
+        </button>
+        <button data-tab="roi" class="tab-btn px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+          Cámaras & ROI
+        </button>
+        <button data-tab="settings" class="tab-btn px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+          Configuración
+        </button>
+      </nav>
+
+      <!-- System Health Metrics -->
+      <div class="flex items-center space-x-4 text-xs">
+        <div class="hidden sm:flex items-center space-x-1 text-slate-400">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="header-active-cams">0 Cámaras activas</span>
+        </div>
+        <div class="hidden lg:flex items-center space-x-1 text-slate-400">
+          <span>Almacenamiento:</span>
+          <span id="header-storage-used" class="font-semibold text-slate-200">0 MB</span>
+        </div>
+        <div class="hidden lg:flex items-center space-x-1 text-slate-400">
+          <span>Uptime:</span>
+          <span id="header-uptime" class="font-semibold text-slate-200">0s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Nav Bar -->
+    <div class="md:hidden flex border-t border-slate-800 px-2 py-1 justify-around bg-slate-900">
+      <button data-tab="live" class="tab-btn-m px-3 py-1.5 text-xs font-semibold rounded text-blue-400">En Vivo</button>
+      <button data-tab="events" class="tab-btn-m px-3 py-1.5 text-xs font-semibold rounded text-slate-400">Eventos</button>
+      <button data-tab="roi" class="tab-btn-m px-3 py-1.5 text-xs font-semibold rounded text-slate-400">Cámaras</button>
+      <button data-tab="settings" class="tab-btn-m px-3 py-1.5 text-xs font-semibold rounded text-slate-400">Ajustes</button>
+    </div>
+  </header>
+
+  <!-- MAIN VIEW CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- 1. LIVE GRID VIEW -->
+    <section id="view-live" class="space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white">Monitoreo en Vivo</h1>
+          <p class="text-sm text-slate-400">Transmisión de baja latencia con confirmación de movimiento MOG2 y detección IA</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <label class="text-xs text-slate-400">Cuadrícula:</label>
+          <select id="grid-layout-select" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-md px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <option value="auto">Automático</option>
+            <option value="1">1x1 (Individual)</option>
+            <option value="2">2x2 (4 Cámaras)</option>
+            <option value="3">3x3 (9 Cámaras)</option>
+          </select>
+          <button id="btn-refresh-grid" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-md text-slate-300 hover:text-white transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Cameras Grid -->
+      <div id="live-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Rendered dynamically by live_grid.js -->
+      </div>
+    </section>
+
+    <!-- 2. EVENTS GALLERY VIEW -->
+    <section id="view-events" class="space-y-6 hidden">
+      <div id="event-gallery" class="hidden"></div>
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white">Historial de Incidentes</h1>
+          <p class="text-sm text-slate-400">Clips de video MP4 y capturas registradas ante confirmación de personas y vehículos</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button id="btn-purge-orphans" title="Eliminar grabaciones huérfanas de cámaras eliminadas o archivos corruptos" class="px-3 py-1.5 bg-rose-600/30 hover:bg-rose-600/50 border border-rose-500/40 text-rose-300 rounded-md text-xs font-semibold flex items-center space-x-1.5 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            <span>Liberar Espacio Huérfano</span>
+          </button>
+          <button id="btn-sync-disk" title="Buscar clips de video en disco no indexados y agregarlos al historial" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-md text-xs font-semibold text-slate-300 flex items-center space-x-1.5 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+            <span>Sincronizar Disco</span>
+          </button>
+          <button id="btn-refresh-events" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-md text-xs font-semibold text-white flex items-center space-x-1.5 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            <span>Actualizar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters Toolbar -->
+      <div class="bg-slate-900 border border-slate-800 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">Cámara</label>
+          <select id="filter-camera" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <option value="">Todas las cámaras</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">Clase Detectada</label>
+          <select id="filter-class" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <option value="">Todas las clases</option>
+            <option value="person">Persona</option>
+            <option value="car">Automóvil</option>
+            <option value="motorcycle">Motocicleta</option>
+            <option value="bus">Autobús</option>
+            <option value="truck">Camión</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">Confianza Mínima (<span id="conf-val-label">Todas (0%)</span>)</label>
+          <input type="range" id="filter-confidence" min="0.0" max="0.95" step="0.05" value="0.0" class="w-full accent-blue-500" />
+        </div>
+        <div class="flex items-end space-x-2">
+          <button id="btn-apply-filters" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold py-1.5 rounded transition">
+            Filtrar
+          </button>
+          <button id="btn-reset-filters" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 font-medium rounded transition">
+            Limpiar
+          </button>
+        </div>
+      </div>
+
+      <!-- Events Cards Grid -->
+      <div id="events-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Rendered dynamically by events.js -->
+      </div>
+
+      <!-- Pagination -->
+      <div id="events-pagination" class="flex items-center justify-between border-t border-slate-800 pt-4 text-xs text-slate-400">
+        <div>
+          Mostrando <span id="pag-start" class="font-bold text-slate-200">0</span> a <span id="pag-end" class="font-bold text-slate-200">0</span> de <span id="pag-total" class="font-bold text-slate-200">0</span> incidentes
+        </div>
+        <div class="flex space-x-2">
+          <button id="pag-prev" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 text-slate-300 disabled:opacity-50 transition">Anterior</button>
+          <span id="pag-page-info" class="px-2 py-1 text-slate-300">Pág 1 / 1</span>
+          <button id="pag-next" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 text-slate-300 disabled:opacity-50 transition">Siguiente</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. ROI & CAMERA CONFIG VIEW -->
+    <section id="view-roi" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white">Regiones de Interés (ROI) & Detección</h1>
+          <p class="text-sm text-slate-400">Dibuje polígonos sobre el fotograma para excluir zonas de falsas alarmas y configure sensibilidad</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <label class="text-xs text-slate-400">Seleccionar Cámara:</label>
+          <select id="roi-camera-select" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-md px-3 py-1.5 focus:ring-1 focus:ring-blue-500">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Interactive Canvas ROI Editor (2 Cols) -->
+        <div class="lg:col-span-2 space-y-3">
+          <div class="roi-canvas-container relative rounded-lg border border-slate-800 bg-black aspect-video overflow-hidden">
+            <img id="roi-snapshot-img" class="w-full h-full object-contain hidden" alt="Snapshot Cámara" />
+            <canvas id="roi-canvas" class="roi-canvas"></canvas>
+            <div id="roi-loading-overlay" class="absolute inset-0 bg-slate-950/80 flex items-center justify-center text-xs text-slate-400">
+              Cargando fotograma de referencia...
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center space-x-2">
+              <button id="btn-roi-add-vertex" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-200">
+                Haga clic para agregar puntos
+              </button>
+              <button id="btn-roi-clear" class="px-3 py-1.5 bg-red-900/40 hover:bg-red-900/60 border border-red-800/60 rounded text-red-300">
+                Limpiar Polígono
+              </button>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button id="btn-roi-reload-frame" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-200">
+                Tomar Nuevo Fotograma
+              </button>
+              <button id="btn-roi-save" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded shadow transition">
+                Guardar Cambios
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detection & MOG2 Sliders Panel (1 Col) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 space-y-4 text-xs">
+          <h3 class="text-sm font-semibold text-slate-200 border-b border-slate-800 pb-2">Parámetros de Detección</h3>
+
+          <div>
+            <div class="flex justify-between mb-1">
+              <label class="text-slate-400">Sensibilidad de Movimiento MOG2</label>
+              <span id="label-sensitivity" class="font-bold text-blue-400">50%</span>
+            </div>
+            <input type="range" id="slider-sensitivity" min="0.0" max="1.0" step="0.05" value="0.5" class="w-full accent-blue-500" />
+            <span class="text-[11px] text-slate-500">Ajusta varThreshold para ignorar vibraciones leves o viento</span>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-1">
+              <label class="text-slate-400">Área Mínima de Contorno (Píxeles)</label>
+              <span id="label-min-contour" class="font-bold text-blue-400">500 px</span>
+            </div>
+            <input type="range" id="slider-min-contour" min="50" max="2000" step="50" value="500" class="w-full accent-blue-500" />
+            <span class="text-[11px] text-slate-500">Ignora hojas, insectos y mascotas de menor tamaño</span>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-1">
+              <label class="text-slate-400">Umbral Confianza IA (YOLO)</label>
+              <span id="label-ai-conf" class="font-bold text-blue-400">50%</span>
+            </div>
+            <input type="range" id="slider-ai-conf" min="0.1" max="0.95" step="0.05" value="0.5" class="w-full accent-blue-500" />
+            <span class="text-[11px] text-slate-500">Confianza mínima requerida para confirmar persona o vehículo</span>
+          </div>
+
+          <div class="pt-2 border-t border-slate-800 space-y-2">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" id="chk-detect-shadows" checked class="rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-0" />
+              <span class="text-slate-300">Filtrar Sombras (MOG2 Shadow Filter)</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" id="chk-ai-enabled" checked class="rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-0" />
+              <span class="text-slate-300">Activar Confirmación por IA (Fase 2)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. SETTINGS & ALERTS VIEW -->
+    <section id="view-settings" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white">Configuración del NVR & Alertas</h1>
+          <p class="text-sm text-slate-400">Configure notificaciones por Gmail (SMTP con App Passwords), almacenamiento y administración de cámaras</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- SMTP & Alerting Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h2 class="text-base font-semibold text-white">Despacho de Alertas por Correo (Gmail SMTP)</h2>
+            <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Google App Password</span>
+          </div>
+
+          <form id="form-settings-smtp" class="space-y-3 text-xs">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-400 mb-1 font-medium">Servidor SMTP</label>
+                <input type="text" id="smtp-server" value="smtp.gmail.com" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200" />
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-medium">Puerto SMTP</label>
+                <input type="number" id="smtp-port" value="587" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">Usuario / Correo Remitente</label>
+              <input type="email" id="smtp-user" placeholder="ejemplo@gmail.com" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200" />
+            </div>
+
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">Contraseña de Aplicación (16 caracteres)</label>
+              <input type="password" id="smtp-pass" placeholder="••••••••••••••••" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200" />
+              <span class="text-[11px] text-slate-500">Genere una contraseña de aplicación en myaccount.google.com/apppasswords</span>
+            </div>
+
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">Destinatarios de Alerta (separados por coma)</label>
+              <input type="text" id="alert-recipients" placeholder="notificaciones@ejemplo.com, admin@ejemplo.com" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200" />
+            </div>
+
+            <div>
+              <div class="flex justify-between mb-1">
+                <label class="text-slate-400 font-medium">Período de Enfriamiento (Cooldown)</label>
+                <span id="label-cooldown" class="font-bold text-blue-400">60 segundos</span>
+              </div>
+              <input type="range" id="slider-cooldown" min="10" max="300" step="5" value="60" class="w-full accent-blue-500" />
+              <span class="text-[11px] text-slate-500">Previene la saturación de correos ante movimiento continuo</span>
+            </div>
+
+            <div class="pt-3 flex items-center justify-between border-t border-slate-800">
+              <button type="button" id="btn-test-email" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded font-medium transition">
+                Probar Envío de Correo
+              </button>
+              <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded shadow transition">
+                Guardar Ajustes
+              </button>
+            </div>
+          </form>
+
+          <!-- Email Test Diagnostics Banner -->
+          <div id="email-test-result" class="hidden p-3 rounded text-xs"></div>
+        </div>
+
+        <!-- Camera Registration & Management Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h2 class="text-base font-semibold text-white">Agregar Nueva Cámara</h2>
+            <span class="text-xs text-slate-400">RTSP / USB / Archivo / Sintético</span>
+          </div>
+
+          <form id="form-add-camera" class="space-y-3 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">Nombre de la Cámara</label>
+              <input type="text" id="cam-name" placeholder="Entrada Jardín" required class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-400 mb-1 font-medium">Tipo de Fuente</label>
+                <select id="cam-type" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200">
+                  <option value="synthetic">Simulador Sintético</option>
+                  <option value="rtsp">Cámara IP (RTSP)</option>
+                  <option value="usb">Cámara Web USB</option>
+                  <option value="file">Archivo de Video</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-medium">FPS Objetivo</label>
+                <input type="number" id="cam-fps" value="15" min="1" max="60" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">URL o Identificador de Fuente</label>
+              <input type="text" id="cam-url" value="synthetic://moving_person" placeholder="rtsp://user:pass@192.168.1.100:554/stream" required class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200 font-mono text-[11px]" />
+            </div>
+
+            <!-- Probe Result Box -->
+            <div id="probe-result-box" class="hidden p-2.5 rounded bg-slate-800 border border-slate-700 text-[11px]"></div>
+
+            <div class="pt-3 flex items-center justify-between border-t border-slate-800">
+              <button type="button" id="btn-probe-camera" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded font-medium transition">
+                Probar Conexión
+              </button>
+              <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded shadow transition">
+                Registrar Cámara
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Registered Cameras Management Card (Full Width) -->
+        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            <div>
+              <h2 class="text-base font-semibold text-white">Cámaras Configuradas y Activas</h2>
+              <p class="text-xs text-slate-400">Administre, edite parámetros, pause o elimine cámaras del sistema en tiempo real</p>
+            </div>
+            <button id="btn-refresh-cam-list" type="button" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs text-slate-200 flex items-center space-x-1.5 transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+              <span>Actualizar Lista</span>
+            </button>
+          </div>
+
+          <!-- Cameras Table / Cards Container -->
+          <div id="settings-cameras-container" class="space-y-3">
+            <div class="text-center py-6 text-slate-500 text-xs">Cargando cámaras...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- EDIT CAMERA MODAL -->
+  <div id="edit-camera-modal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+        <div>
+          <h3 class="font-bold text-sm text-white">Editar Configuración de Cámara</h3>
+          <p id="edit-cam-id-display" class="text-xs text-slate-400 font-mono">ID de Cámara</p>
+        </div>
+        <button id="btn-close-edit-modal" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <!-- Modal Body Form -->
+      <form id="form-edit-camera" class="p-5 space-y-4 text-xs overflow-y-auto">
+        <input type="hidden" id="edit-cam-id" />
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">Nombre de la Cámara</label>
+          <input type="text" id="edit-cam-name" required class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1 font-medium">Tipo de Fuente</label>
+            <select id="edit-cam-type" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200">
+              <option value="synthetic">Simulador Sintético</option>
+              <option value="rtsp">Cámara IP (RTSP)</option>
+              <option value="usb">Cámara Web USB</option>
+              <option value="file">Archivo de Video</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1 font-medium">FPS Objetivo</label>
+            <input type="number" id="edit-cam-fps" min="1" max="60" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">URL o Identificador de Fuente</label>
+          <input type="text" id="edit-cam-url" required class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-slate-200 font-mono text-[11px]" />
+          <span class="text-[11px] text-slate-500">Ruta de archivo (ej. storage/video.mp4), RTSP URL, índice USB o escenario sintético</span>
+        </div>
+
+        <div class="flex items-center space-x-2 pt-1">
+          <input type="checkbox" id="edit-cam-enabled" class="rounded border-slate-700 bg-slate-800 text-blue-600 focus:ring-0" />
+          <label for="edit-cam-enabled" class="text-slate-300 font-medium cursor-pointer">Cámara Habilitada (iniciar ingesta automáticamente)</label>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end space-x-2">
+          <button type="button" id="btn-cancel-edit-cam" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded font-medium transition">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded shadow transition">
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- HTML5 VIDEO MODAL PLAYER FOR INCIDENT REVIEW -->
+  <div id="video-modal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+      <!-- Modal Header -->
+      <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+        <div>
+          <h3 id="modal-event-title" class="font-bold text-sm text-white">Incidente Grabado</h3>
+          <p id="modal-event-subtitle" class="text-xs text-slate-400">Timestamp y Cámara</p>
+        </div>
+        <button id="modal-close-btn" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <!-- Video Player Body with Range Scrubbing -->
+      <div class="relative bg-black flex items-center justify-center aspect-video">
+        <video id="modal-video-player" controls autoplay playsinline class="w-full h-full object-contain">
+          Tu navegador no soporta reproducción directa de video MP4.
+        </video>
+      </div>
+
+      <!-- Modal Footer Toolbar -->
+      <div class="p-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs bg-slate-900">
+        <div class="flex items-center space-x-2">
+          <span id="modal-badge-class" class="status-pill badge-person">Persona</span>
+          <span id="modal-badge-duration" class="status-pill bg-slate-800 text-slate-300">12s</span>
+          <span id="modal-badge-size" class="text-slate-500">1.2 MB</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <a id="modal-download-clip" href="#" download class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 font-medium transition">
+            Descargar Clip MP4
+          </a>
+          <a id="modal-download-snap" href="#" download class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 font-medium transition">
+            Descargar Snapshot
+          </a>
+          <button id="modal-delete-btn" class="px-3 py-1.5 bg-red-900/40 hover:bg-red-900/60 text-red-300 rounded border border-red-800/60 font-medium transition">
+            Eliminar Evento
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- JAVASCRIPT APP SUITE -->
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/live_grid.js"></script>
+  <script src="/static/js/events.js"></script>
+  <script src="/static/js/roi_editor.js"></script>
+  <script src="/static/js/settings.js"></script>
+</body>
+</html>
