@@ -5,7 +5,7 @@
   <img src="https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi" alt="FastAPI" />
   <img src="https://img.shields.io/badge/OpenCV-4.10%2B-5C3EE8?logo=opencv" alt="OpenCV" />
   <img src="https://img.shields.io/badge/YOLOv8-ONNX%20Runtime%20CPU-00C4CC" alt="YOLOv8 ONNX" />
-  <img src="https://img.shields.io/badge/License-MIT-brightgreen" alt="MIT License" />
+  <img src="https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg?style=flat-square&logo=creative-commons" alt="CC BY-NC-ND 4.0" />
 </p>
 
 Sistema de videovigilancia inteligente (Smart NVR) para uso residencial y PyME, desarrollado en **Python 3.12** y **FastAPI**. Diseñado con arquitectura desacoplada para garantizar baja latencia (<500ms en streaming local), bajo consumo de CPU (<10% en reposo por cámara) mediante filtrado híbrido de movimiento en dos fases (OpenCV MOG2 + Deep Learning ligero), grabación de clips MP4 activada por eventos con buffer circular pre/post-roll, despacho asíncrono de alertas por Gmail con instantánea adjunta y un dashboard web interactivo integrado (Single Page Application con Tailwind CSS y HTML5 Canvas).
@@ -268,4 +268,10 @@ Todas las pruebas se ejecutan de manera hermética utilizando el simulador sint�
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia **MIT**. Consulte el archivo [LICENSE](LICENSE) para más detalles.
+Este proyecto está bajo la Licencia **Creative Commons Atribución-NoComercial-SinDerivadas 4.0 Internacional (CC BY-NC-ND 4.0)**.
+
+- **No Comercial (NC)**: No se permite el uso, integración, despliegue o explotación de este software, sus modelos neuronales o sus pipelines de streaming para fines comerciales, servicios de vigilancia pagados ni productos lucrativos.
+- **Sin Derivadas (ND)**: Si remezcla, transforma o crea a partir del material, no podrá distribuir el material modificado ni redistribuirlo como una solución propia.
+- **Atribución (BY)**: Debe otorgar el crédito correspondiente de autoría a **Yerson José Rodríguez Pérez** ([@jyersonrp](https://github.com/jyersonrp)).
+
+Para más información, consulte el archivo [LICENSE](LICENSE) o visite [Creative Commons CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
