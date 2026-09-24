@@ -11,7 +11,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.10%2B-5C3EE8?style=flat-square&logo=opencv)](https://opencv.org/)
 [![YOLOv8](https://img.shields.io/badge/YOLOv8-ONNX%20Runtime%20CPU-00C4CC?style=flat-square)](https://onnxruntime.ai/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](LICENSE)
+[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
 
 [Características](#-características-principales) • [Arquitectura](#-arquitectura-del-sistema) • [Benchmarks](#-comparativa-y-rendimiento) • [Instalación](#-instalación-rápida) • [Dashboard](#-guía-del-dashboard-web) • [API REST](#-referencia-de-la-api-rest) • [Contribuir](#-contribución)
@@ -261,7 +261,13 @@ Todas las pruebas se ejecutan con streams sintéticos procedurales aislados, gar
 
 ## 📄 Licencia
 
-Este proyecto se distribuye bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para más información.
+Este proyecto está protegido y se distribuye bajo la licencia **Creative Commons Atribución-NoComercial-SinDerivadas 4.0 Internacional (CC BY-NC-ND 4.0)**.
+
+- **Atribución**: Se debe dar crédito de manera adecuada a **Yerson José Rodríguez Pérez (@jyersonrp)**.
+- **No Comercial**: No se permite el uso de este software ni de sus modelos/pipelines para fines comerciales, lucro o venta en sistemas cerrados sin autorización expresa.
+- **Sin Derivadas**: Se prohíbe la distribución de versiones modificadas, bifurcaciones alteradas o arquitecturas derivadas.
+
+Consulta el archivo [LICENSE](LICENSE) para conocer todos los términos legales y condiciones completas.
 
 <div align="center">
 
